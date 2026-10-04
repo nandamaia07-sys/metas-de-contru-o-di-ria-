@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#13222F">
+<title>Meu futuro, minha vida</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{
+  --bg:#13222F; --bg2:#1B2F42; --linha:#2B4560; --texto:#E9EEF2; --suave:#8FA6BA;
+  --futuro:#3A5873; --falta:#FF7A6B; --ok:#F0B23E;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; min-height:100vh; color:var(--texto); background-color:var(--bg);
+  background-image:
+    linear-gradient(rgba(143,166,186,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(143,166,186,.07) 1px,transparent 1px);
+  background-size:24px 24px;
+  font-family:"Avenir Next","Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif;
+  line-height:1.4;
+}
+main{max-width:560px;margin:0 auto;padding:18px 16px 96px}
+h1{font-size:1.5rem;margin:6px 0 2px;letter-spacing:-.01em}
+h2{font-size:1.1rem;margin:0}
+.sub{color:var(--suave);margin:0 0 14px;font-size:.95rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[data-i]:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.btn{display:block;width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--linha);background:var(--bg2);font-weight:600;font-size:1rem;margin-top:10px}
+.btn.primario{background:var(--ok);color:#1d1403;border-color:var(--ok)}
+.btn.repor{border-color:var(--falta);color:var(--falta)}
+.btn.discreto{font-weight:500;color:var(--suave)}
+.btn[disabled]{opacity:.45;cursor:default}
+.topo{display:flex;justify-content:space-between;align-items:center}
+.link{background:none;border:0;color:var(--suave);padding:6px 0;font-size:.95rem}
+.link.forte{color:var(--texto);text-decoration:underline}
+.tabs{display:flex;gap:8px;margin:0 0 16px}
+.tab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--linha);background:none;font-weight:600;color:var(--suave)}
+.tab.sel{background:var(--bg2);color:var(--texto);border-color:var(--suave)}
+.card{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--bg2);border:1px solid var(--linha);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.card .corpo{flex:1;min-width:0}
+.card .mini{width:84px;flex:none}
+.mini svg{display:block;width:100%;height:auto}
+.barra{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;margin:10px 0 8px;display:flex}
+.barra i{display:block;height:100%}
+.meta-linha{color:var(--suave);font-size:.88rem}
+.vazio{border:1px dashed var(--linha);border-radius:14px;padding:28px 18px;text-align:center;color:var(--suave)}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));width:min(528px,calc(100% - 32px))}
+.casa{background:rgba(10,18,26,.55);border:1px solid var(--linha);border-radius:14px;padding:10px;margin:8px 0}
+.casa svg{display:block;width:100%;height:auto}
+.frase{font-style:italic;text-align:center;margin:10px 6px;color:var(--texto)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.stat{background:var(--bg2);border:1px solid var(--linha);border-radius:12px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:1.25rem}
+.stat span{font-size:.75rem;color:var(--suave)}
+.stat.f b{color:var(--falta)}
+.info{min-height:1.4em;color:var(--suave);font-size:.92rem;margin:4px 2px}
+.aviso{border-radius:12px;padding:12px 14px;margin:10px 0;border:1px solid var(--linha);background:var(--bg2)}
+.aviso.alerta{border-color:var(--falta)}
+.aviso.vitoria{border-color:var(--ok)}
+.apagar{background:none;border:0;color:var(--suave);text-decoration:underline;margin:22px auto 0;display:block;font-size:.85rem}
+.legenda{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--suave);margin:4px 2px}
+.legenda span::before{content:"";display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.l1::before{background:var(--b);border:1px solid var(--bb)}
+.l2::before{background:var(--b);opacity:.55;border:1px solid var(--bb)}
+.l3::before{border:1.5px dashed var(--falta)} .l4::before{border:1.5px dashed var(--futuro)}
+dialog{background:var(--bg2);color:var(--texto);border:1px solid var(--linha);border-radius:16px;padding:20px;width:min(440px,calc(100% - 32px));max-height:92vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+label,.rot{display:block;font-size:.88rem;color:var(--suave);margin:14px 0 6px}
+input,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--linha);background:var(--bg);color:var(--texto);font:inherit}
+textarea{resize:vertical;min-height:70px}
+.linha2{display:flex;gap:10px}.linha2 .btn{margin-top:18px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:9px 14px;border-radius:10px;border:1px solid var(--linha);background:var(--bg);font-weight:600}
+.chip.sel{border-color:var(--ok);background:rgba(240,178,62,.14)}
+.cores{display:flex;gap:10px;flex-wrap:wrap}
+.cor{width:38px;height:38px;border-radius:50%;border:2px solid var(--linha);padding:0}
+.cor.sel{border-color:#fff;box-shadow:0 0 0 3px var(--ok)}
+.dia{margin:0 0 12px}
+.dia-t{margin:0 0 6px;color:var(--texto);font-size:.92rem}
+.dia-t .st{margin-left:8px;font-size:.78rem;color:var(--suave)}
+.dia-t .st.falta{color:var(--falta)} .dia-t .st.hoje{color:var(--ok)}
+.foto{display:block;width:100%;max-height:240px;object-fit:cover;border-radius:14px;border:1px solid var(--linha);margin:0 0 12px}
+.foto-prev{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:12px;border:1px solid var(--linha);margin-top:8px}
+.card .foto-mini{width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none;border:1px solid var(--linha)}
+.nuvem{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:-4px 0 12px;min-height:1px}
+@keyframes cai{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.cai{animation:cai .45s cubic-bezier(.3,1.4,.5,1)}
+@media (prefers-reduced-motion:reduce){.cai{animation:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<dialog id="dlg">
+  <h2 id="d-titulo">Nova meta</h2>
+  <label for="f-nome">O que você vai construir?</label>
+  <input id="f-nome" maxlength="60" placeholder="Ex.: Aprender opções em investimentos">
+  <span class="rot">Foto da meta (opcional)</span>
+  <img id="f-foto-prev" class="foto-prev" alt="Foto da meta" hidden>
+  <input id="f-foto-input" type="file" accept="image/*" hidden>
+  <div class="linha2" style="margin-top:0">
+    <button class="btn" id="f-foto-add" type="button">Escolher foto</button>
+    <button class="btn" id="f-foto-rem" type="button" hidden>Remover foto</button>
+  </div>
+  <label for="f-dias">Em quantos dias? (um bloco por dia)</label>
+  <input id="f-dias" type="number" inputmode="numeric" min="1" max="365" value="60">
+  <label for="f-ini">Começa em</label>
+  <input id="f-ini" type="date">
+  <span class="rot">Construção</span>
+  <div class="chips" id="f-formato" role="radiogroup" aria-label="Formato">
+    <button type="button" class="chip" data-formato="casa">Casa</button>
+    <button type="button" class="chip" data-formato="predio">Prédio</button>
+    <button type="button" class="chip" data-formato="fazenda">Fazenda</button>
+  </div>
+  <span class="rot">Cor</span>
+  <div class="cores" id="f-cor" role="radiogroup" aria-label="Cor"></div>
+  <label for="f-frase">Frase ou versículo para o telhado (opcional)</label>
+  <textarea id="f-frase" maxlength="160" placeholder="Ex.: Tudo posso naquele que me fortalece. (Fp 4:13)"></textarea>
+  <button class="btn repor" id="f-excluir" type="button" hidden>Excluir meta</button>
+  <div class="linha2">
+    <button class="btn" id="f-cancelar" type="button">Cancelar</button>
+    <button class="btn primario" id="f-salvar" type="button">Criar meta</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-login">
+  <h2>Entrar para sincronizar</h2>
+  <p class="meta-linha" style="margin:8px 0 0">Use o mesmo e-mail e senha em todos os aparelhos.</p>
+  <label for="l-email">E-mail</label>
+  <input id="l-email" type="email" autocomplete="email" inputmode="email">
+  <label for="l-senha">Senha</label>
+  <input id="l-senha" type="password" autocomplete="current-password" minlength="6">
+  <p id="l-msg" class="meta-linha" style="color:var(--falta);min-height:1.4em;margin:10px 0 0"></p>
+  <div class="linha2">
+    <button class="btn" id="l-cancelar" type="button">Cancelar</button>
+    <button class="btn primario" id="l-entrar" type="button">Entrar</button>
+  </div>
+  <button class="btn discreto" id="l-criar" type="button">Criar conta com este e-mail</button>
+</dialog>
+
+<dialog id="dlg-conf">
+  <h2>Excluir meta?</h2>
+  <p id="c-msg" style="margin:12px 0 0"></p>
+  <div class="linha2">
+    <button class="btn" id="c-nao" type="button">Cancelar</button>
+    <button class="btn repor" id="c-sim" type="button">Sim, excluir</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-titulo">
+  <h2>Editar texto da tela inicial</h2>
+  <label for="t-tit">Título</label>
+  <input id="t-tit" maxlength="60">
+  <label for="t-sub">Frase abaixo do título</label>
+  <input id="t-sub" maxlength="120">
+  <div class="linha2">
+    <button class="btn" id="t-cancelar" type="button">Cancelar</button>
+    <button class="btn primario" id="t-salvar" type="button">Salvar</button>
+  </div>
+</dialog>
+
+<script>
+const KEY='meufuturo.v1';
+const CORES={
+  marrom:{n:'Marrom',b:'#A9714B',bb:'#7A4D2E',t:'#6B4226',tb:'#3b2515'},
+  azul:{n:'Azul',b:'#4A90D9',bb:'#2F6BAA',t:'#2F6BAA',tb:'#1f4a78'},
+  cinza:{n:'Cinza',b:'#9AA5B1',bb:'#6B7683',t:'#55606c',tb:'#3b434c'},
+  verde:{n:'Verde',b:'#5DAE6B',bb:'#3C8449',t:'#2f6b3a',tb:'#1f4a28'},
+  amarelo:{n:'Amarelo',b:'#F2D04A',bb:'#C4A22A',t:'#A67F10',tb:'#7d6212'},
+  laranja:{n:'Laranja',b:'#F08A3C',bb:'#BF6420',t:'#A8501A',tb:'#703510'},
+  marinho:{n:'Azul marinho',b:'#35549A',bb:'#7C9BDB',t:'#1B2F5C',tb:'#101d3a'}
+};
+let db=load(); let view=null; let sel=null; let ultimo=null; let tab='ativas';
+let editId=null, dFormato='casa', dCor='marrom', dFoto='';
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{metas:[]}}catch(e){return{metas:[]}}}
+// ===== NUVEM (Supabase) =====
+// Preencha as duas linhas abaixo (Project Settings > API). Deixe vazio para usar só neste aparelho.
+const SB_URL='';
+const SB_KEY='';
+const NUVEM=!!(SB_URL&&SB_KEY);
+let sess=lerSess(), syncSt='', timerSync=null, sincronizando=false, denovo=false, tNota=null;
+
+function lerSess(){try{return JSON.parse(localStorage.getItem('meufuturo.sess'))}catch(e){return null}}
+function gravaSess(v){sess=v;try{v?localStorage.setItem('meufuturo.sess',JSON.stringify(v)):localStorage.removeItem('meufuturo.sess')}catch(e){}}
+function hash(str){let h=5381;for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return String(h)}
+const semU=(k,v)=>k==='u'?undefined:v;
+function hMeta(m){return hash(JSON.stringify(m,semU))}
+function hCfg(){return hash((db.titulo||'')+'|'+(db.subtitulo||''))}
+
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('Não foi possível salvar: o armazenamento do aparelho está cheio. Tente uma foto menor ou remova fotos antigas.')}}
+// marca o que mudou (carimbo u) e registra exclusões
+function stampar(){
+  db.h=db.h||{}; db.apagadas=db.apagadas||{};
+  const vivos=new Set();
+  for(const m of db.metas){
+    vivos.add(m.id); const h=hMeta(m);
+    if(db.h[m.id]!==h){db.h[m.id]=h; m.u=Date.now();}
+  }
+  for(const id of Object.keys(db.h)){
+    if(id==='_cfg'||vivos.has(id)) continue;
+    delete db.h[id]; db.apagadas[id]=Date.now();
+  }
+  if(db.h._cfg===undefined) db.h._cfg=hash('|');
+  const hc=hCfg(); if(db.h._cfg!==hc){db.h._cfg=hc; db.cfgU=Date.now();}
+}
+function save(){stampar(); persist(); agendar();}
+function salvarDepois(){clearTimeout(tNota);tNota=setTimeout(()=>{tNota=null;save()},600);}
+function descarrega(){if(tNota){clearTimeout(tNota);tNota=null;save();}}
+function agendar(){if(!NUVEM||!sess) return; clearTimeout(timerSync); timerSync=setTimeout(sincronizar,1500);}
+
+async function authReq(path,body){
+  const r=await fetch(SB_URL+'/auth/v1/'+path,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.error_description||j.msg||j.message||('Erro '+r.status)); e.auth=(r.status===400||r.status===401||r.status===422); throw e;}
+  return j;
+}
+function sessDe(j){return {access_token:j.access_token,refresh_token:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000,uid:j.user.id,email:j.user.email}}
+async function token(){
+  if(!sess){const e=new Error('Sem sessão');e.auth=true;throw e;}
+  if(Date.now()>sess.exp-60000){gravaSess(sessDe(await authReq('token?grant_type=refresh_token',{refresh_token:sess.refresh_token})));}
+  return sess.access_token;
+}
+async function rest(path,opts={}){
+  const t=await token();
+  const r=await fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:{apikey:SB_KEY,Authorization:'Bearer '+t,'Content-Type':'application/json',...(opts.headers||{})}});
+  if(!r.ok){const tx=await r.text().catch(()=>'');throw new Error('Nuvem '+r.status+': '+tx.slice(0,100));}
+  return (opts.method&&opts.method!=='GET')?null:r.json();
+}
+function linhaMeta(m){return {id:m.id,u:m.u,deleted:false,dados:m}}
+function linhaCfg(){return {id:'_cfg',u:db.cfgU,deleted:false,dados:{titulo:db.titulo||'',subtitulo:db.subtitulo||''}}}
+
+async function sincronizar(){
+  if(!NUVEM||!sess) return;
+  if(sincronizando){denovo=true;return;}
+  sincronizando=true; setSt('Sincronizando…');
+  try{
+    descarrega(); stampar();
+    const rem=await rest('meu_futuro_metas?select=id,u,deleted');
+    const rmap=new Map(rem.map(r=>[r.id,r]));
+    const subir=[], baixar=[]; let mudou=false;
+    for(const m of [...db.metas]){
+      const r=rmap.get(m.id);
+      if(!r) subir.push(linhaMeta(m));
+      else if(r.deleted){
+        if(m.u>r.u) subir.push(linhaMeta(m));
+        else{db.metas=db.metas.filter(x=>x.id!==m.id);delete db.h[m.id];db.apagadas[m.id]=r.u;mudou=true;}
+      }
+      else if(m.u>r.u) subir.push(linhaMeta(m));
+      else if(m.u<r.u) baixar.push(m.id);
+    }
+    for(const r of rem){
+      if(r.id==='_cfg'||r.deleted||db.metas.some(m=>m.id===r.id)) continue;
+      const tomb=db.apagadas[r.id];
+      if(tomb&&tomb>=r.u) subir.push({id:r.id,u:tomb,deleted:true,dados:null});
+      else baixar.push(r.id);
+    }
+    const rc=rmap.get('_cfg'), cu=db.cfgU||0;
+    if(rc){ if(rc.u>cu) baixar.push('_cfg'); else if(cu>rc.u) subir.push(linhaCfg()); }
+    else if(cu) subir.push(linhaCfg());
+
+    if(baixar.length){
+      const linhas=await rest('meu_futuro_metas?select=id,u,dados&id=in.('+baixar.join(',')+')');
+      for(const r of linhas){
+        if(!r.dados) continue;
+        if(r.id==='_cfg'){db.titulo=r.dados.titulo||'';db.subtitulo=r.dados.subtitulo||'';db.cfgU=r.u;db.h._cfg=hCfg();}
+        else{
+          const m=r.dados; m.u=r.u;
+          const i=db.metas.findIndex(x=>x.id===m.id);
+          if(i>=0) db.metas[i]=m; else db.metas.unshift(m);
+          db.h[m.id]=hMeta(m); delete db.apagadas[m.id];
+        }
+        mudou=true;
+      }
+    }
+    for(const l of subir){
+      await rest('meu_futuro_metas?on_conflict=user_id,id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{...l,user_id:sess.uid}])});
+    }
+    persist();
+    if(mudou) renderSeguro();
+    setSt('Sincronizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){
+    if(e&&e.auth){gravaSess(null);setSt('Sessão expirada. Entre de novo.');}
+    else if(e instanceof TypeError) setSt('Sem conexão. Sincroniza quando voltar.');
+    else setSt((e&&e.message)||'Falha ao sincronizar.');
+  }finally{
+    sincronizando=false; if(denovo){denovo=false;agendar();}
+  }
+}
+function setSt(t){syncSt=t;atualizaStatus();}
+function nuvemHTML(){
+  if(!NUVEM) return '';
+  if(!sess) return `<button class="link forte" data-act="entrar">Entrar para sincronizar entre aparelhos</button>`;
+  return `<span class="meta-linha">${esc(syncSt||'Conectado')} &middot; ${esc(sess.email||'')}</span><button class="link" data-act="sync">Sincronizar agora</button><button class="link" data-act="sair">Sair</button>`;
+}
+function atualizaStatus(){const e=document.getElementById('nuvem'); if(e) e.innerHTML=nuvemHTML();}
+function renderSeguro(){
+  const a=document.activeElement;
+  if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT')) return;
+  if(document.querySelector('dialog[open]')) return;
+  render();
+}
+const ldlg=document.getElementById('dlg-login');
+function abrirLogin(){document.getElementById('l-msg').textContent='';ldlg.showModal();document.getElementById('l-email').focus();}
+async function entrarNuvem(criar){
+  const email=document.getElementById('l-email').value.trim(), senha=document.getElementById('l-senha').value;
+  const msg=t=>document.getElementById('l-msg').textContent=t;
+  if(!email||senha.length<6){msg('Informe o e-mail e uma senha de pelo menos 6 caracteres.');return;}
+  msg('Aguarde…');
+  try{
+    const j=criar?await authReq('signup',{email,password:senha}):await authReq('token?grant_type=password',{email,password:senha});
+    if(!j.access_token){msg('Conta criada. Confirme pelo e-mail e depois toque em Entrar.');return;}
+    gravaSess(sessDe(j)); ldlg.close(); atualizaStatus(); sincronizar();
+  }catch(e){msg(e instanceof TypeError?'Sem conexão com a internet.':(e.message||'Não foi possível entrar.'));}
+}
+document.getElementById('l-cancelar').onclick=()=>ldlg.close();
+document.getElementById('l-entrar').onclick=()=>entrarNuvem(false);
+document.getElementById('l-criar').onclick=()=>entrarNuvem(true);
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function hoje(){return ymd(new Date())}
+function utc(s){const[a,m,d]=s.split('-').map(Number);return Date.UTC(a,m-1,d)}
+function diff(a,b){return Math.round((utc(a)-utc(b))/86400000)}
+function somar(s,n){return new Date(utc(s)+n*86400000).toISOString().slice(0,10)}
+function fmt(s){const[,m,d]=s.split('-');return d+'/'+m}
+function fmtFull(s){const[a,m,d]=s.split('-');return d+'/'+m+'/'+a}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function ano(m){const a=m.inicio.slice(0,4), b=somar(m.inicio,m.dias-1).slice(0,4);return a===b?a:a+'–'+b}
+const TIT0='Meu futuro, minha vida', SUB0='Cada dia cumprido vira um bloco da sua construção.';
+function tituloApp(){return db.titulo||TIT0}
+function subApp(){return db.subtitulo||SUB0}
+function lum(h){const n=parseInt(h.slice(1),16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255}
+function corDe(m){return CORES[m.cor]||CORES.marrom}
+
+function status(m,i){
+  const s=m.slots[i]; if(s) return s.repos?'repos':'ok';
+  const t=diff(hoje(),m.inicio);
+  if(i<t) return 'falta'; if(i===t) return 'hoje'; return 'futuro';
+}
+function contar(m){
+  const r={ok:0,repos:0,falta:0,hoje:0,futuro:0};
+  for(let i=0;i<m.dias;i++) r[status(m,i)]++;
+  r.feitos=r.ok+r.repos; r.completa=r.feitos===m.dias; return r;
+}
+function acharMeta(id){return db.metas.find(m=>m.id===id)}
+
+/* ---------- texto no telhado ---------- */
+function quebrar(txt,w,h){
+  txt=(txt||'').trim(); if(!txt) return null;
+  const words=txt.split(/\s+/);
+  for(let fs=14;fs>=8;fs--){
+    const maxc=Math.max(6,Math.floor(w/(fs*0.56)));
+    const lines=[]; let cur='';
+    for(const wd of words){
+      const t=(cur+' '+wd).trim();
+      if(t.length<=maxc) cur=t; else{ if(cur) lines.push(cur); cur=wd; }
+    }
+    if(cur) lines.push(cur);
+    if(lines.length*fs*1.22<=h && lines.every(l=>l.length<=maxc)) return {lines,fs};
+  }
+  const fs=8, maxc=Math.max(6,Math.floor(w/(fs*0.56))), maxl=Math.max(1,Math.floor(h/(fs*1.22)));
+  const lines=[]; let cur='';
+  for(const wd of words){
+    const t=(cur+' '+wd).trim();
+    if(t.length<=maxc) cur=t; else{ if(cur) lines.push(cur); cur=wd.slice(0,maxc); }
+  }
+  if(cur) lines.push(cur);
+  const cut=lines.slice(0,maxl);
+  if(lines.length>maxl) cut[cut.length-1]=cut[cut.length-1].slice(0,Math.max(1,maxc-1))+'…';
+  return {lines:cut,fs};
+}
+function textoSVG(txt,cx,y0,w,h,cor){
+  const q=quebrar(txt,w,h); if(!q) return '';
+  const lh=q.fs*1.22, ini=y0+(h-q.lines.length*lh)/2+q.fs*0.85;
+  return `<text text-anchor="middle" font-style="italic" font-size="${q.fs}" fill="${cor}" pointer-events="none">`+
+    q.lines.map((l,i)=>`<tspan x="${cx}" y="${(ini+i*lh).toFixed(1)}">${esc(l)}</tspan>`).join('')+`</text>`;
+}
+
+/* ---------- construção ---------- */
+function casaSVG(m,thumb){
+  const N=m.dias, f=m.formato||'casa', cor=corDe(m);
+  let c;
+  if(f==='predio') c=Math.max(4,Math.ceil(Math.sqrt(N/2)));
+  else if(f==='fazenda') c=Math.max(5,Math.ceil(Math.sqrt(N*1.6)));
+  else c=Math.max(4,Math.ceil(Math.sqrt(N*1.3)));
+  const rows=Math.ceil(N/c), bw=40,bh=20,g=2,pad=16,W=c*bw;
+  const roofH= f==='predio'? Math.max(64,Math.round(W*0.3)) : Math.max(84,Math.round(W*(f==='fazenda'?0.36:0.42)));
+  const topo=roofH+8, H=topo+rows*bh+pad, VW=W+pad*2, cx=VW/2;
+  const k=contar(m); let out='';
+  out+=`<line x1="4" y1="${H-pad+1}" x2="${VW-4}" y2="${H-pad+1}" stroke="#3A5873" stroke-width="2"/>`;
+  for(let i=0;i<N;i++){
+    const col=i%c, rb=Math.floor(i/c);
+    const x=pad+col*bw, y=topo+(rows-1-rb)*bh, st=status(m,i);
+    let a;
+    if(st==='ok') a=`fill="${cor.b}" stroke="${cor.bb}" stroke-width="1.5"`;
+    else if(st==='repos') a=`fill="${cor.b}" fill-opacity=".55" stroke="${cor.bb}" stroke-width="1.5"`;
+    else if(st==='falta') a=`fill="rgba(255,122,107,.10)" stroke="#FF7A6B" stroke-width="1.5" stroke-dasharray="4 3"`;
+    else if(st==='hoje') a=`fill="rgba(240,178,62,.12)" stroke="#F0B23E" stroke-width="2"`;
+    else a=`fill="none" stroke="#3A5873" stroke-width="1" stroke-dasharray="3 3"`;
+    const cls=(!thumb&&ultimo&&ultimo.id===m.id&&ultimo.i===i)?' class="cai"':'';
+    const inter=thumb?'':` data-i="${i}" tabindex="0" role="button" aria-label="Dia ${i+1}"`;
+    out+=`<rect${inter}${cls} x="${x+g/2}" y="${y+g/2}" width="${bw-g}" height="${bh-g}" rx="3" ${a}/>`;
+    if(!thumb){
+      const tc2=st==='ok'?(lum(cor.b)>0.6?'#1d1403':'#fff'):st==='repos'?'#fff':st==='falta'?'#FF7A6B':st==='hoje'?'#F0B23E':'#6F8CA6';
+      out+=`<text x="${x+bw/2}" y="${y+bh/2+3.5}" text-anchor="middle" font-size="10" font-weight="700" fill="${tc2}" pointer-events="none">${i+1}${st==='repos'?'✓':''}</text>`;
+    }
+  }
+  if(!thumb&&sel!==null&&sel<N){
+    const x=pad+(sel%c)*bw, y=topo+(rows-1-Math.floor(sel/c))*bh;
+    out+=`<rect x="${x+1}" y="${y+1}" width="${bw-2}" height="${bh-2}" rx="3" fill="none" stroke="#fff" stroke-width="2.5" pointer-events="none"/>`;
+  }
+  // telhado
+  const BL=pad-8, BR=VW-pad+8, B=BR-BL, base=topo-4, apex=6, h=base-apex;
+  const fill=k.completa?cor.t:'none', stroke=k.completa?cor.tb:'#3A5873';
+  const dash=k.completa?'':' stroke-dasharray="5 4"';
+  const tc=k.completa?'#fff':'#8FA6BA';
+  const frase=thumb?'':m.frase;
+  if(f==='predio'){
+    out+=`<rect x="${BL}" y="${apex+6}" width="${B}" height="${base-apex-6}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="2"${dash}/>`;
+    out+=`<line x1="${cx}" y1="${apex+6}" x2="${cx}" y2="${apex-4}" stroke="${stroke}" stroke-width="2"/>`;
+    out+=textoSVG(frase,cx,apex+14,B-24,base-apex-22,tc);
+  } else if(f==='fazenda'){
+    const knee=base-h*0.55, ins=B*0.1;
+    const pts=`${BL},${base} ${BL+ins},${knee} ${cx},${apex} ${BR-ins},${knee} ${BR},${base}`;
+    out+=`<polygon points="${pts}" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"${dash}/>`;
+    out+=textoSVG(frase,cx,apex+h*0.4,B*0.64,h*0.6-8,tc);
+  } else {
+    out+=`<polygon points="${BL},${base} ${cx},${apex} ${BR},${base}" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linejoin="round"${dash}/>`;
+    out+=textoSVG(frase,cx,apex+h*0.5,B*0.46,h*0.5-8,tc);
+  }
+  // detalhes ao concluir
+  if(k.completa&&rows>=2){
+    const dy=H-pad-bh*2;
+    if(f==='fazenda'){
+      const dw=bw*1.8, dx=cx-dw/2;
+      out+=`<rect x="${dx}" y="${dy}" width="${dw}" height="${bh*2}" fill="#F3E9D8" stroke="#5A3A22" stroke-width="2.5" pointer-events="none"/>`;
+      out+=`<path d="M${dx} ${dy} L${dx+dw} ${dy+bh*2} M${dx+dw} ${dy} L${dx} ${dy+bh*2}" stroke="#5A3A22" stroke-width="2.5" pointer-events="none"/>`;
+    } else {
+      const dx=cx-bw*0.6;
+      out+=`<rect x="${dx}" y="${dy}" width="${bw*1.2}" height="${bh*2}" rx="3" fill="#5A3A22" stroke="#2f1d10" stroke-width="2" pointer-events="none"/>`;
+      out+=`<circle cx="${dx+bw*1.0}" cy="${dy+bh}" r="2.5" fill="#F0B23E" pointer-events="none"/>`;
+      if(f==='casa'&&c>=5) out+=`<rect x="${pad+bw*0.7}" y="${H-pad-bh*2.2}" width="${bw*0.9}" height="${bh*1.1}" rx="2" fill="#BFE3F2" stroke="#2f1d10" stroke-width="2" pointer-events="none"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${VW} ${H}" role="img" aria-label="Construção: ${k.feitos} de ${N} blocos">${out}</svg>`;
+}
+function temaStyle(m){const c=corDe(m);return `--b:${c.b};--bb:${c.bb}`}
+
+/* ---------- telas ---------- */
+function render(){
+  const app=document.getElementById('app');
+  const m=view&&acharMeta(view);
+  if(!m){view=null; app.innerHTML=lista(); return;}
+  app.innerHTML=detalhe(m);
+}
+function lista(){
+  const ativas=db.metas.filter(m=>!m.arquivada);
+  const hist=db.metas.filter(m=>m.arquivada).sort((a,b)=>(b.concluidaEm||'').localeCompare(a.concluidaEm||''));
+  let h=`<div class="topo"><h1>${esc(tituloApp())}</h1><button class="link forte" data-act="titulo">Editar</button></div><p class="sub">${esc(subApp())}</p>
+  <div id="nuvem" class="nuvem">${nuvemHTML()}</div>
+  <div class="tabs" role="tablist">
+    <button class="tab ${tab==='ativas'?'sel':''}" data-act="tab" data-tab="ativas">Em andamento (${ativas.length})</button>
+    <button class="tab ${tab==='historico'?'sel':''}" data-act="tab" data-tab="historico">Histórico (${hist.length})</button>
+  </div>`;
+  if(tab==='ativas'){
+    if(!ativas.length) h+=`<div class="vazio">Você ainda não tem nenhuma meta em andamento.<br>Crie uma e comece a construir.</div>`;
+    for(const m of ativas){
+      const k=contar(m), p=n=>(n/m.dias*100).toFixed(2)+'%', c=corDe(m);
+      h+=`<button class="card" data-act="abrir" data-id="${m.id}">${m.foto?`<img class="foto-mini" src="${m.foto}" alt="">`:''}<div class="corpo">
+        <h2>${esc(m.nome)}</h2>
+        <div class="barra" aria-hidden="true"><i style="width:${p(k.ok)};background:${c.b}"></i><i style="width:${p(k.repos)};background:${c.b};opacity:.55"></i><i style="width:${p(k.falta)};background:var(--falta)"></i></div>
+        <div class="meta-linha">${ano(m)} &middot; ${k.completa?'Concluída, pronta para o histórico':`${k.feitos} de ${m.dias} blocos`}${k.falta?` &middot; ${k.falta} ${k.falta>1?'faltas':'falta'}`:''}</div>
+      </div></button>`;
+    }
+    h+=`<button class="btn primario fab" data-act="nova">Nova meta</button>`;
+  } else {
+    if(!hist.length) h+=`<div class="vazio">Nenhuma meta no histórico ainda.<br>Quando terminar uma construção, exporte para cá.</div>`;
+    for(const m of hist){
+      const k=contar(m);
+      h+=`<button class="card" data-act="abrir" data-id="${m.id}">
+        <div class="mini" style="${temaStyle(m)}">${casaSVG(m,true)}</div>
+        <div class="corpo"><h2>${esc(m.nome)}</h2>
+        <div class="meta-linha">${ano(m)} &middot; ${m.dias} blocos${m.concluidaEm?` &middot; concluída em ${fmtFull(m.concluidaEm)}`:''}${k.repos?` &middot; ${k.repos} ${k.repos>1?'repostos':'reposto'}`:''}</div></div>
+      </button>`;
+    }
+  }
+  return h;
+}
+function detalhe(m){
+  const k=contar(m), t=diff(hoje(),m.inicio), fim=somar(m.inicio,m.dias-1), arq=!!m.arquivada;
+  let topo;
+  if(arq) topo=`Meta de ${ano(m)}${m.concluidaEm?` &middot; concluída em ${fmtFull(m.concluidaEm)}`:''}`;
+  else if(t<0) topo=`Meta de ${ano(m)} &middot; começa em ${fmt(m.inicio)}`;
+  else if(t>=m.dias) topo=`Meta de ${ano(m)} &middot; prazo encerrado em ${fmt(fim)}`;
+  else topo=`Meta de ${ano(m)} &middot; dia ${t+1} de ${m.dias} &middot; termina em ${fmt(fim)}`;
+
+  let h=`<div class="topo"><button class="link" data-act="voltar">&larr; ${arq?'Histórico':'Minhas metas'}</button>
+  <button class="link forte" data-act="editar">Editar meta</button></div>
+  <h1>${esc(m.nome)}</h1><p class="sub">${topo}</p>`;
+  if(m.foto) h+=`<img class="foto" src="${m.foto}" alt="Foto da meta">`;
+
+  if(k.completa&&!arq) h+=`<div class="aviso vitoria"><b>Obra concluída!</b> Você construiu seu futuro bloco a bloco${k.repos?` (${k.repos} ${k.repos>1?'blocos repostos':'bloco reposto'})`:' sem nenhuma reposição'}.</div>`;
+  else if(!k.completa&&t>=m.dias) h+=`<div class="aviso alerta"><b>Prazo encerrado.</b> Você teve ${k.falta} ${k.falta===1?'falta':'faltas'}. Reponha para terminar a construção.</div>`;
+
+  h+=`<div style="${temaStyle(m)}"><div class="casa">${casaSVG(m)}</div>
+  <div class="legenda"><span class="l1">Cumprido</span><span class="l2">Reposto</span><span class="l3">Falta</span><span class="l4">A construir</span></div></div>`;
+  if(m.frase) h+=`<p class="frase">${esc(m.frase)}</p>`;
+  h+=`<div class="stats">
+    <div class="stat"><b>${k.ok}</b><span>no dia</span></div>
+    <div class="stat"><b>${k.repos}</b><span>repostos</span></div>
+    <div class="stat f"><b>${k.falta}</b><span>faltas</span></div>
+    <div class="stat"><b>${k.hoje+k.futuro}</b><span>restantes</span></div>
+  </div>`;
+
+  let info='Toque em um bloco para ver o dia'+(arq?'.':' e editar.'), acao='';
+  if(sel!==null&&sel<m.dias){
+    const st=status(m,sel), d=somar(m.inicio,sel), s=m.slots[sel];
+    const nome={ok:'cumprido no dia',repos:`reposto em ${s&&fmt(s.data)}`,falta:'falta',hoje:'é hoje',futuro:'ainda não chegou'}[st];
+    info=`Dia ${sel+1} &middot; ${fmt(d)} &mdash; ${nome}`;
+    if(!arq){
+      if(st==='falta') acao=`<button class="btn repor" data-act="repor" data-i="${sel}">Repor o dia ${sel+1} (fiz depois)</button>
+        <button class="btn discreto" data-act="cumpri" data-i="${sel}">Eu cumpri no dia, só esqueci de marcar</button>`;
+      else if(st==='ok'||st==='repos') acao=`<button class="btn discreto" data-act="remover" data-i="${sel}">Remover este bloco</button>`;
+    }
+  }
+  const escrever=(sel!==null&&sel<m.dias)?`<button class="btn discreto" data-act="escrever" data-i="${sel}">Escrever sobre este dia</button>`:'';
+  h+=`<p class="info" aria-live="polite">${info}</p>${acao}${escrever}`;
+
+  if(arq){
+    h+=`<button class="btn" data-act="desarquivar">Devolver para metas em andamento</button>
+    <button class="btn repor" data-act="apagar">Excluir esta meta do histórico</button>`;
+  } else if(k.completa){
+    h+=`<button class="btn primario" data-act="exportar">Exportar para o histórico</button>`;
+  } else {
+    if(t>=0&&t<m.dias){
+      if(m.slots[t]) h+=`<button class="btn" disabled>Bloco de hoje colocado</button>`;
+      else h+=`<button class="btn primario" data-act="colocar">Colocar o bloco de hoje (dia ${t+1})</button>`;
+    }
+    if(k.falta) h+=`<button class="btn repor" data-act="reporProx">Repor uma falta (${k.falta} ${k.falta===1?'pendente':'pendentes'})</button>`;
+  }
+  if(!arq) h+=`<button class="btn repor" data-act="apagar">Excluir esta meta</button>`;
+  h+=`<h2 style="margin:28px 0 4px">Diário dos dias</h2><p class="sub">Escreva o que você fez em cada dia.</p>`;
+  const rot={ok:'cumprido',repos:'reposto',falta:'falta',hoje:'hoje',futuro:''};
+  for(let i=0;i<m.dias;i++){
+    const st=status(m,i);
+    h+=`<div class="dia"><label class="dia-t" for="nota-${i}"><b>Dia ${i+1}</b> &middot; ${fmt(somar(m.inicio,i))}<span class="st ${st}">${rot[st]}</span></label><textarea id="nota-${i}" data-nota="${i}" rows="2" placeholder="O que você fez neste dia?">${esc((m.notas&&m.notas[i])||'')}</textarea></div>`;
+  }
+  return h;
+}
+
+/* ---------- ações ---------- */
+function poe(m,i,repos){m.slots[i]={data:hoje(),repos:repos}; ultimo={id:m.id,i}; sel=i; save(); render();}
+document.getElementById('app').addEventListener('click',e=>{
+  const bl=e.target.closest('svg [data-i]');
+  if(bl){sel=+bl.dataset.i; ultimo=null; render(); return;}
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, m=view&&acharMeta(view), i=+b.dataset.i;
+  if(act==='nova') abrirDlg(null);
+  else if(act==='titulo'){
+    document.getElementById('t-tit').value=tituloApp(); document.getElementById('t-sub').value=subApp();
+    tdlg.showModal(); document.getElementById('t-tit').focus();
+  }
+  else if(act==='escrever'){
+    const ta=document.getElementById('nota-'+i); if(ta){ta.scrollIntoView({block:'center'});ta.focus();}
+  }
+  else if(act==='tab'){tab=b.dataset.tab; render();}
+  else if(act==='entrar') abrirLogin();
+  else if(act==='sync') sincronizar();
+  else if(act==='sair'){gravaSess(null); syncSt=''; atualizaStatus();}
+  else if(act==='abrir'){view=b.dataset.id; sel=null; ultimo=null; render();}
+  else if(act==='voltar'){view=null; render();}
+  else if(act==='editar'&&m) abrirDlg(m);
+  else if(act==='colocar'&&m){
+    const t=diff(hoje(),m.inicio);
+    if(t>=0&&t<m.dias&&!m.slots[t]) poe(m,t,false);
+  }
+  else if(act==='repor'&&m){ if(status(m,i)==='falta') poe(m,i,true); }
+  else if(act==='cumpri'&&m){ if(status(m,i)==='falta') poe(m,i,false); }
+  else if(act==='reporProx'&&m){
+    for(let j=0;j<m.dias;j++) if(status(m,j)==='falta'){poe(m,j,true);break;}
+  }
+  else if(act==='remover'&&m){
+    if(confirm('Remover o bloco do dia '+(i+1)+'?')){delete m.slots[i]; ultimo=null; save(); render();}
+  }
+  else if(act==='exportar'&&m){
+    m.arquivada=true; m.concluidaEm=hoje(); view=null; sel=null; tab='historico'; save(); render();
+  }
+  else if(act==='desarquivar'&&m){
+    m.arquivada=false; delete m.concluidaEm; view=null; sel=null; tab='ativas'; save(); render();
+  }
+  else if(act==='apagar'&&m){
+    pedirExclusao(m);
+  }
+});
+document.getElementById('app').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('svg [data-i]')){e.preventDefault();sel=+e.target.dataset.i;ultimo=null;render();}
+});
+
+document.getElementById('app').addEventListener('input',e=>{
+  const t=e.target.closest('[data-nota]'); const m=view&&acharMeta(view); if(!t||!m) return;
+  m.notas=m.notas||{};
+  if(t.value.trim()) m.notas[t.dataset.nota]=t.value; else delete m.notas[t.dataset.nota];
+  salvarDepois();
+});
+const tdlg=document.getElementById('dlg-titulo');
+document.getElementById('t-cancelar').onclick=()=>tdlg.close();
+document.getElementById('t-salvar').onclick=()=>{
+  db.titulo=document.getElementById('t-tit').value.trim(); db.subtitulo=document.getElementById('t-sub').value.trim();
+  document.title=tituloApp(); save(); tdlg.close(); render();
+};
+document.title=tituloApp();
+
+/* ---------- excluir meta ---------- */
+const cdlg=document.getElementById('dlg-conf'); let excluirId=null;
+function pedirExclusao(m){
+  excluirId=m.id;
+  document.getElementById('c-msg').textContent='Tem certeza que deseja excluir "'+m.nome+'"? Todos os blocos e anotações do diário serão apagados e isso não pode ser desfeito.';
+  cdlg.showModal();
+}
+document.getElementById('c-nao').onclick=()=>cdlg.close();
+document.getElementById('c-sim').onclick=()=>{
+  db.metas=db.metas.filter(x=>x.id!==excluirId); excluirId=null;
+  view=null; sel=null; save(); cdlg.close(); render();
+};
+document.getElementById('f-excluir').onclick=()=>{
+  const m=editId&&acharMeta(editId); if(!m) return;
+  dlg.close(); pedirExclusao(m);
+};
+
+/* ---------- foto da meta ---------- */
+function attFoto(){
+  const img=document.getElementById('f-foto-prev');
+  img.hidden=!dFoto; if(dFoto) img.src=dFoto;
+  document.getElementById('f-foto-rem').hidden=!dFoto;
+  document.getElementById('f-foto-add').textContent=dFoto?'Trocar foto':'Escolher foto';
+}
+function reduzir(file,max){
+  return new Promise((ok,erro)=>{
+    const url=URL.createObjectURL(file), im=new Image();
+    im.onload=()=>{
+      const r=Math.min(1,max/Math.max(im.width,im.height));
+      const c=document.createElement('canvas'); c.width=Math.round(im.width*r); c.height=Math.round(im.height*r);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg',0.8));
+    };
+    im.onerror=()=>{URL.revokeObjectURL(url);erro();};
+    im.src=url;
+  });
+}
+document.getElementById('f-foto-add').onclick=()=>document.getElementById('f-foto-input').click();
+document.getElementById('f-foto-rem').onclick=()=>{dFoto='';attFoto();};
+document.getElementById('f-foto-input').onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  try{dFoto=await reduzir(f,900);attFoto();}catch(x){alert('Não consegui abrir essa imagem. Tente outra foto.');}
+};
+
+/* ---------- criar / editar meta ---------- */
+const dlg=document.getElementById('dlg');
+const boxCor=document.getElementById('f-cor');
+boxCor.innerHTML=Object.entries(CORES).map(([k,c])=>`<button type="button" class="cor" data-cor="${k}" style="background:${c.b}" aria-label="${c.n}" title="${c.n}"></button>`).join('');
+function marcar(){
+  document.querySelectorAll('#f-formato .chip').forEach(b=>b.classList.toggle('sel',b.dataset.formato===dFormato));
+  document.querySelectorAll('#f-cor .cor').forEach(b=>b.classList.toggle('sel',b.dataset.cor===dCor));
+}
+dlg.addEventListener('click',e=>{
+  const f=e.target.closest('[data-formato]'), c=e.target.closest('[data-cor]');
+  if(f){dFormato=f.dataset.formato;marcar();} if(c){dCor=c.dataset.cor;marcar();}
+});
+function abrirDlg(m){
+  editId=m?m.id:null;
+  document.getElementById('d-titulo').textContent=m?'Editar meta':'Nova meta';
+  document.getElementById('f-salvar').textContent=m?'Salvar':'Criar meta';
+  document.getElementById('f-excluir').hidden=!m;
+  document.getElementById('f-nome').value=m?m.nome:'';
+  document.getElementById('f-dias').value=m?m.dias:60;
+  document.getElementById('f-ini').value=m?m.inicio:hoje();
+  document.getElementById('f-frase').value=m?(m.frase||''):'';
+  dFoto=m?(m.foto||''):''; attFoto();
+  dFormato=m?(m.formato||'casa'):'casa'; dCor=m?(m.cor||'marrom'):'marrom'; marcar();
+  dlg.showModal(); document.getElementById('f-nome').focus();
+}
+document.getElementById('f-cancelar').onclick=()=>dlg.close();
+document.getElementById('f-salvar').onclick=()=>{
+  const nome=document.getElementById('f-nome').value.trim();
+  const dias=Math.max(1,Math.min(365,parseInt(document.getElementById('f-dias').value,10)||0));
+  const ini=document.getElementById('f-ini').value||hoje();
+  const frase=document.getElementById('f-frase').value.trim();
+  if(!nome){document.getElementById('f-nome').focus();return;}
+  if(!dias){document.getElementById('f-dias').focus();return;}
+  if(editId){
+    const m=acharMeta(editId);
+    const maior=Math.max(-1,...Object.keys(m.slots).map(Number));
+    if(dias<maior+1){alert('Você já tem blocos até o dia '+(maior+1)+'. Use pelo menos '+(maior+1)+' dias ou remova esses blocos antes.');return;}
+    Object.assign(m,{nome,dias,inicio:ini,formato:dFormato,cor:dCor,frase,foto:dFoto});
+    save(); dlg.close(); render(); return;
+  }
+  const m={id:'m'+Date.now(),nome,dias,inicio:ini,formato:dFormato,cor:dCor,frase,foto:dFoto,slots:{}};
+  db.metas.unshift(m); save(); dlg.close(); tab='ativas'; view=m.id; sel=null; ultimo=null; render();
+};
+
+document.addEventListener('visibilitychange',()=>{if(document.hidden) descarrega(); else {render(); sincronizar();}});
+window.addEventListener('pagehide',descarrega);
+window.addEventListener('online',()=>sincronizar());
+render();
+sincronizar();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
