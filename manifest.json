@@ -1,0 +1,13 @@
+{
+  "name": "Meu futuro, minha vida",
+  "short_name": "Meu Futuro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#13222F",
+  "theme_color": "#13222F",
+  "lang": "pt-BR",
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
