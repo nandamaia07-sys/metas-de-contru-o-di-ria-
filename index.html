@@ -184,8 +184,8 @@ let editId=null, dFormato='casa', dCor='marrom', dFoto='';
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{metas:[]}}catch(e){return{metas:[]}}}
 // ===== NUVEM (Supabase) =====
 // Preencha as duas linhas abaixo (Project Settings > API). Deixe vazio para usar só neste aparelho.
-const SB_URL='';
-const SB_KEY='';
+const SB_URL='https://nkhazaoedryquksfqwas.supabase.co';
+const SB_KEY='sb_publishable_CWXCHeTOsVEF40Ql5oZ54A_2H_YiM69';
 const NUVEM=!!(SB_URL&&SB_KEY);
 let sess=lerSess(), syncSt='', timerSync=null, sincronizando=false, denovo=false, tNota=null;
 
