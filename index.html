@@ -602,12 +602,15 @@ function detalhe(m){
     if(k.falta) h+=`<button class="btn repor" data-act="reporProx">Repor uma falta (${k.falta} ${k.falta===1?'pendente':'pendentes'})</button>`;
   }
   if(!arq) h+=`<button class="btn repor" data-act="apagar">Excluir esta meta</button>`;
-  h+=`<h2 style="margin:28px 0 4px">Diário dos dias</h2><p class="sub">Escreva o que você fez em cada dia.</p>`;
+  h+=`<h2 class="sec">Instruções da tarefa</h2><p class="sub">O que preciso para fazer esta tarefa.</p>
+  <textarea data-instr rows="5" maxlength="2000" placeholder="Ex.: materiais, passos, links, horário, o que estudar...">${esc(m.instrucoes||'')}</textarea>`;
+  h+=`<h2 class="sec" style="margin-top:28px">Diário dos dias</h2><p class="sub">Escreva o que você fez em cada dia.</p>`;
   const rot={ok:'cumprido',repos:'reposto',falta:'falta',hoje:'hoje',futuro:''};
   for(let i=0;i<m.dias;i++){
     const st=status(m,i);
     h+=`<div class="dia"><label class="dia-t" for="nota-${i}"><b>Dia ${i+1}</b> &middot; ${fmt(somar(m.inicio,i))}<span class="st ${st}">${rot[st]}</span></label><textarea id="nota-${i}" data-nota="${i}" rows="2" placeholder="O que você fez neste dia?">${esc((m.notas&&m.notas[i])||'')}</textarea></div>`;
   }
+  h+=`<button class="btn" data-act="voltar">&larr; ${arq?'Voltar ao histórico':'Voltar às metas'}</button>`;
   return h;
 }
 
@@ -680,9 +683,19 @@ function areaDetalhe(a){
       <div class="topo"><span class="meta-linha">${p.em?'Registrada em '+fmtFull(p.em):''}</span><button class="link" data-act="delNota" data-mes="${p.m}">Remover</button></div></div>`;
     }
   }
-  h+=`<button class="btn repor" data-act="delArea">Excluir esta área</button>`;
+  h+=`<button class="btn repor" data-act="delArea">Excluir esta área</button>
+  <button class="btn" data-act="voltarArea">&larr; Voltar</button>`;
   return h;
 }
+
+/* ---------- navegação (botão voltar do celular) ---------- */
+function irDetalhe(){ if(typeof history!=='undefined'&&!(history.state&&history.state.tela==='det')) history.pushState({tela:'det'},''); }
+function irHome(){
+  if(typeof history!=='undefined'&&history.state&&history.state.tela==='det') history.back();
+  else {view=null; areaView=null; sel=null; render();}
+}
+window.addEventListener('popstate',()=>{view=null; areaView=null; sel=null; render();});
+if(typeof history!=='undefined'&&history.replaceState) history.replaceState({tela:'home'},'');
 
 /* ---------- ações ---------- */
 function poe(m,i,repos){m.slots[i]={data:hoje(),repos:repos}; ultimo={id:m.id,i}; sel=i; save(); render();}
@@ -710,8 +723,8 @@ document.getElementById('app').addEventListener('click',e=>{
     confirmar('Excluir versículo?','Tem certeza que deseja excluir este versículo'+(v.ref?' ('+v.ref+')':'')+'? Isso não pode ser desfeito.',()=>{gov().versiculos=gov().versiculos.filter(x=>x.id!==v.id);save();render();});
   }
   else if(act==='novaArea') abrirAreaDlg(null);
-  else if(act==='abrirArea'){const a=acharArea(b.dataset.id); if(a){areaView=a.id;aMes=mesAtual();carregaForm(a);render();}}
-  else if(act==='voltarArea'){areaView=null;render();}
+  else if(act==='abrirArea'){const a=acharArea(b.dataset.id); if(a){areaView=a.id;aMes=mesAtual();carregaForm(a);irDetalhe();render();}}
+  else if(act==='voltarArea') irHome();
   else if(act==='editArea'){const a=acharArea(areaView); if(a) abrirAreaDlg(a);}
   else if(act==='salvarNota'){
     const a=acharArea(areaView); if(!a) return;
@@ -726,13 +739,13 @@ document.getElementById('app').addEventListener('click',e=>{
   }
   else if(act==='delArea'){
     const a=acharArea(areaView); if(!a) return;
-    confirmar('Excluir área?','Tem certeza que deseja excluir "'+a.nome+'" e todas as notas dela? Isso não pode ser desfeito.',()=>{gov().areas=gov().areas.filter(x=>x.id!==a.id);areaView=null;save();render();});
+    confirmar('Excluir área?','Tem certeza que deseja excluir "'+a.nome+'" e todas as notas dela? Isso não pode ser desfeito.',()=>{gov().areas=gov().areas.filter(x=>x.id!==a.id);save();irHome();});
   }
   else if(act==='entrar') abrirLogin();
   else if(act==='sync') sincronizar();
   else if(act==='sair'){gravaSess(null); syncSt=''; atualizaStatus();}
-  else if(act==='abrir'){view=b.dataset.id; sel=null; ultimo=null; render();}
-  else if(act==='voltar'){view=null; render();}
+  else if(act==='abrir'){view=b.dataset.id; sel=null; ultimo=null; irDetalhe(); render();}
+  else if(act==='voltar') irHome();
   else if(act==='editar'&&m) abrirDlg(m);
   else if(act==='colocar'&&m){
     const t=diff(hoje(),m.inicio);
@@ -747,10 +760,10 @@ document.getElementById('app').addEventListener('click',e=>{
     if(confirm('Remover o bloco do dia '+(i+1)+'?')){delete m.slots[i]; ultimo=null; save(); render();}
   }
   else if(act==='exportar'&&m){
-    m.arquivada=true; m.concluidaEm=hoje(); view=null; sel=null; tab='historico'; save(); render();
+    m.arquivada=true; m.concluidaEm=hoje(); tab='historico'; save(); irHome();
   }
   else if(act==='desarquivar'&&m){
-    m.arquivada=false; delete m.concluidaEm; view=null; sel=null; tab='ativas'; save(); render();
+    m.arquivada=false; delete m.concluidaEm; tab='ativas'; save(); irHome();
   }
   else if(act==='apagar'&&m){
     pedirExclusao(m);
@@ -765,6 +778,7 @@ document.getElementById('app').addEventListener('change',e=>{
 });
 document.getElementById('app').addEventListener('input',e=>{
   if(e.target.id==='a-obs'){aObs=e.target.value; return;}
+  if(e.target.matches('[data-instr]')){const mm=view&&acharMeta(view); if(mm){mm.instrucoes=e.target.value; salvarDepois();} return;}
   const t=e.target.closest('[data-nota]'); const m=view&&acharMeta(view); if(!t||!m) return;
   m.notas=m.notas||{};
   if(t.value.trim()) m.notas[t.dataset.nota]=t.value; else delete m.notas[t.dataset.nota];
@@ -788,7 +802,7 @@ function confirmar(tit,msg,fn){
 }
 function pedirExclusao(m){
   confirmar('Excluir meta?','Tem certeza que deseja excluir "'+m.nome+'"? Todos os blocos e anotações do diário serão apagados e isso não pode ser desfeito.',()=>{
-    db.metas=db.metas.filter(x=>x.id!==m.id); view=null; sel=null; save(); render();
+    db.metas=db.metas.filter(x=>x.id!==m.id); save(); irHome();
   });
 }
 document.getElementById('c-nao').onclick=()=>{acaoConf=null;cdlg.close();};
@@ -902,7 +916,7 @@ document.getElementById('f-salvar').onclick=()=>{
     save(); dlg.close(); render(); return;
   }
   const m={id:'m'+Date.now(),nome,dias,inicio:ini,formato:dFormato,cor:dCor,frase,foto:dFoto,slots:{}};
-  db.metas.unshift(m); save(); dlg.close(); tab='ativas'; view=m.id; sel=null; ultimo=null; render();
+  db.metas.unshift(m); save(); dlg.close(); tab='ativas'; view=m.id; sel=null; ultimo=null; irDetalhe(); render();
 };
 
 document.addEventListener('visibilitychange',()=>{if(document.hidden) descarrega(); else {render(); sincronizar();}});
