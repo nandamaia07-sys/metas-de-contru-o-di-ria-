@@ -92,7 +92,7 @@ textarea{resize:vertical;min-height:70px}
 .card .foto-mini{width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none;border:1px solid var(--linha)}
 .nuvem{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:-4px 0 12px;min-height:1px}
 .nav{display:flex;border-bottom:1px solid var(--linha);margin:0 0 16px}
-.nav button{flex:1;padding:12px 4px;background:none;border:0;border-bottom:3px solid transparent;font-weight:700;color:var(--suave)}
+.nav button{flex:1;padding:12px 4px;font-size:.85rem;line-height:1.2;background:none;border:0;border-bottom:3px solid transparent;font-weight:700;color:var(--suave)}
 .nav button.sel{color:var(--texto);border-color:var(--ok)}
 .sec{font-size:1.1rem;margin:22px 0 10px}
 .vers{background:var(--bg2);border:1px solid var(--linha);border-left:4px solid var(--ok);border-radius:12px;padding:14px 16px;margin-bottom:12px}
@@ -109,6 +109,16 @@ textarea{resize:vertical;min-height:70px}
 .nitem p{margin:6px 0 0;white-space:pre-wrap}
 .grafico{background:rgba(10,18,26,.55);border:1px solid var(--linha);border-radius:14px;padding:10px;margin:8px 0}
 .grafico svg{display:block;width:100%;height:auto}
+.plano-tema{text-transform:uppercase;font-weight:800;letter-spacing:.01em}
+h1.plano-tema{font-size:1.4rem}
+.pbar{height:16px;border-radius:99px;background:var(--bg);border:1px solid var(--linha);overflow:hidden;margin:12px 0 8px}
+.pbar i{display:block;height:100%;background:#4A90D9;border-radius:99px;min-width:0}
+.pper{display:flex;justify-content:space-between;font-size:.82rem;color:var(--suave);margin:0 2px 6px}
+.ptempo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 16px}
+.ptempo div{background:var(--bg2);border:1px solid var(--linha);border-radius:12px;padding:10px 12px}
+.ptempo span{display:block;font-size:.75rem;color:var(--suave)}
+.ptempo b{display:block;margin-top:2px;font-size:.95rem}
+.card .plano-tema{margin-bottom:2px}
 @keyframes cai{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
 .cai{animation:cai .45s cubic-bezier(.3,1.4,.5,1)}
 @media (prefers-reduced-motion:reduce){.cai{animation:none}}
@@ -175,6 +185,20 @@ textarea{resize:vertical;min-height:70px}
   </div>
 </dialog>
 
+<dialog id="dlg-plano">
+  <h2 id="p-titulo">Novo plano</h2>
+  <label for="p-tema">Tema do plano</label>
+  <input id="p-tema" maxlength="80" placeholder="Ex.: Comprar um carro" style="text-transform:uppercase;font-weight:800">
+  <label for="p-ini">Data de início</label>
+  <input id="p-ini" type="date">
+  <label for="p-fim">Data final</label>
+  <input id="p-fim" type="date">
+  <div class="linha2">
+    <button class="btn" id="p-cancelar" type="button">Cancelar</button>
+    <button class="btn primario" id="p-salvar" type="button">Salvar</button>
+  </div>
+</dialog>
+
 <dialog id="dlg-login">
   <h2>Entrar para sincronizar</h2>
   <p class="meta-linha" style="margin:8px 0 0">Use o mesmo e-mail e senha em todos os aparelhos.</p>
@@ -224,7 +248,7 @@ const CORES={
 };
 let db=load(); let view=null; let sel=null; let ultimo=null; let tab='ativas';
 let editId=null, dFormato='casa', dCor='marrom', dFoto='';
-let secao='metas', areaView=null, aMes='', aNota=null, aObs='', editVersId=null, editAreaId=null;
+let secao='metas', planoView=null, editPlanoId=null, areaView=null, aMes='', aNota=null, aObs='', editVersId=null, editAreaId=null;
 
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{metas:[]}}catch(e){return{metas:[]}}}
 // ===== NUVEM (Supabase) =====
@@ -239,6 +263,7 @@ function gravaSess(v){sess=v;try{v?localStorage.setItem('meufuturo.sess',JSON.st
 function hash(str){let h=5381;for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return String(h)}
 const semU=(k,v)=>k==='u'?undefined:v;
 function hMeta(m){return hash(JSON.stringify(m,semU))}
+function hPlanos(){return hash((db.planos&&db.planos.length)?JSON.stringify(db.planos):'[]')}
 function hGov(){const g=db.governo;return hash(g&&((g.versiculos||[]).length||(g.areas||[]).length)?JSON.stringify(g):'{}')}
 function hCfg(){return hash((db.titulo||'')+'|'+(db.subtitulo||''))}
 
@@ -252,13 +277,15 @@ function stampar(){
     if(db.h[m.id]!==h){db.h[m.id]=h; m.u=Date.now();}
   }
   for(const id of Object.keys(db.h)){
-    if(id==='_cfg'||id==='_gov'||vivos.has(id)) continue;
+    if(id==='_cfg'||id==='_gov'||id==='_planos'||vivos.has(id)) continue;
     delete db.h[id]; db.apagadas[id]=Date.now();
   }
   if(db.h._cfg===undefined) db.h._cfg=hash('|');
   const hc=hCfg(); if(db.h._cfg!==hc){db.h._cfg=hc; db.cfgU=Date.now();}
   if(db.h._gov===undefined) db.h._gov=hash('{}');
   const hg=hGov(); if(db.h._gov!==hg){db.h._gov=hg; db.govU=Date.now();}
+  if(db.h._planos===undefined) db.h._planos=hash('[]');
+  const hp=hPlanos(); if(db.h._planos!==hp){db.h._planos=hp; db.planosU=Date.now();}
 }
 function save(){stampar(); persist(); agendar();}
 function salvarDepois(){clearTimeout(tNota);tNota=setTimeout(()=>{tNota=null;save()},600);}
@@ -284,6 +311,7 @@ async function rest(path,opts={}){
   return (opts.method&&opts.method!=='GET')?null:r.json();
 }
 function linhaMeta(m){return {id:m.id,u:m.u,deleted:false,dados:m}}
+function linhaPlanos(){return {id:'_planos',u:db.planosU,deleted:false,dados:{planos:db.planos||[]}}}
 function linhaGov(){return {id:'_gov',u:db.govU,deleted:false,dados:db.governo||{versiculos:[],areas:[]}}}
 function linhaCfg(){return {id:'_cfg',u:db.cfgU,deleted:false,dados:{titulo:db.titulo||'',subtitulo:db.subtitulo||''}}}
 
@@ -307,7 +335,7 @@ async function sincronizar(){
       else if(m.u<r.u) baixar.push(m.id);
     }
     for(const r of rem){
-      if(r.id==='_cfg'||r.id==='_gov'||r.deleted||db.metas.some(m=>m.id===r.id)) continue;
+      if(r.id==='_cfg'||r.id==='_gov'||r.id==='_planos'||r.deleted||db.metas.some(m=>m.id===r.id)) continue;
       const tomb=db.apagadas[r.id];
       if(tomb&&tomb>=r.u) subir.push({id:r.id,u:tomb,deleted:true,dados:null});
       else baixar.push(r.id);
@@ -318,12 +346,16 @@ async function sincronizar(){
     const rg=rmap.get('_gov'), gu=db.govU||0;
     if(rg){ if(rg.u>gu) baixar.push('_gov'); else if(gu>rg.u) subir.push(linhaGov()); }
     else if(gu) subir.push(linhaGov());
+    const rp=rmap.get('_planos'), pu=db.planosU||0;
+    if(rp){ if(rp.u>pu) baixar.push('_planos'); else if(pu>rp.u) subir.push(linhaPlanos()); }
+    else if(pu) subir.push(linhaPlanos());
 
     if(baixar.length){
       const linhas=await rest('meu_futuro_metas?select=id,u,dados&id=in.('+baixar.join(',')+')');
       for(const r of linhas){
         if(!r.dados) continue;
-        if(r.id==='_gov'){db.governo={versiculos:r.dados.versiculos||[],areas:r.dados.areas||[]};db.govU=r.u;db.h._gov=hGov();}
+        if(r.id==='_planos'){db.planos=r.dados.planos||[];db.planosU=r.u;db.h._planos=hPlanos();}
+        else if(r.id==='_gov'){db.governo={versiculos:r.dados.versiculos||[],areas:r.dados.areas||[]};db.govU=r.u;db.h._gov=hGov();}
         else if(r.id==='_cfg'){db.titulo=r.dados.titulo||'';db.subtitulo=r.dados.subtitulo||'';db.cfgU=r.u;db.h._cfg=hCfg();}
         else{
           const m=r.dados; m.u=r.u;
@@ -510,6 +542,7 @@ function temaStyle(m){const c=corDe(m);return `--b:${c.b};--bb:${c.bb}`}
 function render(){
   const app=document.getElementById('app');
   if(!view&&secao==='governo'&&areaView){const a=acharArea(areaView); if(a){app.innerHTML=areaDetalhe(a);return;} areaView=null;}
+  if(!view&&secao==='planos'&&planoView){const pl=acharPlano(planoView); if(pl){app.innerHTML=planoDetalhe(pl);return;} planoView=null;}
   const m=view&&acharMeta(view);
   if(!m){view=null; app.innerHTML=lista(); return;}
   app.innerHTML=detalhe(m);
@@ -519,12 +552,12 @@ function lista(){
   const hist=db.metas.filter(m=>m.arquivada).sort((a,b)=>(b.concluidaEm||'').localeCompare(a.concluidaEm||''));
   let h=`<div class="topo"><h1>${esc(tituloApp())}</h1><button class="link forte" data-act="titulo">Editar</button></div><p class="sub">${esc(subApp())}</p>
   <div id="nuvem" class="nuvem">${nuvemHTML()}</div>
-  <div class="nav" role="tablist"><button class="${secao==='metas'?'sel':''}" data-act="sec" data-sec="metas">Minhas metas</button><button class="${secao==='governo'?'sel':''}" data-act="sec" data-sec="governo">O meu governo vem de Deus</button></div>
-  ${secao==='governo'?governoHTML():`<div class="tabs" role="tablist">
+  <div class="nav" role="tablist"><button class="${secao==='metas'?'sel':''}" data-act="sec" data-sec="metas">Minhas metas</button><button class="${secao==='governo'?'sel':''}" data-act="sec" data-sec="governo">O meu governo vem de Deus</button><button class="${secao==='planos'?'sel':''}" data-act="sec" data-sec="planos">Planos futuros</button></div>
+  ${secao==='governo'?governoHTML():secao==='planos'?planosHTML():`<div class="tabs" role="tablist">
     <button class="tab ${tab==='ativas'?'sel':''}" data-act="tab" data-tab="ativas">Em andamento (${ativas.length})</button>
     <button class="tab ${tab==='historico'?'sel':''}" data-act="tab" data-tab="historico">Histórico (${hist.length})</button>
   </div>`}`;
-  if(secao==='governo') return h;
+  if(secao==='governo'||secao==='planos') return h;
   if(tab==='ativas'){
     if(!ativas.length) h+=`<div class="vazio">Você ainda não tem nenhuma meta em andamento.<br>Crie uma e comece a construir.</div>`;
     for(const m of ativas){
@@ -614,6 +647,63 @@ function detalhe(m){
   return h;
 }
 
+/* ---------- Planos futuros ---------- */
+function acharPlano(id){return (db.planos||[]).find(x=>x.id===id)}
+function addMeses(d,n){ // d = 'YYYY-MM-DD'; soma n meses preservando o fim de mês
+  const [a,m,dia]=d.split('-').map(Number), t=a*12+(m-1)+n, ny=Math.floor(t/12), nm=t%12;
+  const ult=new Date(Date.UTC(ny,nm+1,0)).getUTCDate();
+  return ny+'-'+String(nm+1).padStart(2,'0')+'-'+String(Math.min(dia,ult)).padStart(2,'0');
+}
+function difMD(a,b){ // meses e dias de calendário entre a e b (a <= b)
+  const [ya,ma]=a.split('-').map(Number), [yb,mb]=b.split('-').map(Number);
+  let meses=(yb-ya)*12+(mb-ma);
+  while(meses>0&&addMeses(a,meses)>b) meses--;
+  return {m:meses,d:diff(b,addMeses(a,meses))};
+}
+function txtMD(x,total){
+  const p=[];
+  if(x.m) p.push(x.m+(x.m===1?' mês':' meses'));
+  if(x.d||!x.m) p.push(x.d+(x.d===1?' dia':' dias'));
+  return p.join(' e ')+(x.m?' ('+total+(total===1?' dia':' dias')+')':'');
+}
+function planoInfo(pl){
+  const h=hoje(), tot=Math.max(1,diff(pl.fim,pl.ini));
+  const dec=diff(h,pl.ini), falta=diff(pl.fim,h);
+  const pct=Math.max(0,Math.min(100,dec/tot*100));
+  let passou,faltam;
+  if(dec<0){passou='Ainda não começou (começa em '+(-dec)+(dec===-1?' dia)':' dias)'); faltam=txtMD(difMD(h,pl.fim),falta);}
+  else if(falta<0){passou=txtMD(difMD(pl.ini,pl.fim),diff(pl.fim,pl.ini)); faltam='Prazo concluído';}
+  else {passou=txtMD(difMD(pl.ini,h),dec); faltam=falta===0?'Hoje é o último dia':txtMD(difMD(h,pl.fim),falta);}
+  return {pct,passou,faltam,dec,falta};
+}
+function barraPlano(pct){const p=Math.round(pct);return `<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p}" aria-label="Tempo decorrido"><i style="width:${pct.toFixed(2)}%"></i></div>`}
+function planosHTML(){
+  const L=db.planos||[];
+  let h=`<h2 class="sec" style="margin-top:4px">Planos futuros</h2><p class="sub">Cada plano que você tem para o futuro, com o tempo passando até a data final.</p>`;
+  if(!L.length) h+=`<div class="vazio">Nenhum plano ainda.<br>Adicione o primeiro, por exemplo: comprar um carro.</div>`;
+  for(const pl of L){
+    const i=planoInfo(pl);
+    h+=`<button class="card" data-act="abrirPlano" data-id="${pl.id}" style="display:block"><h2 class="plano-tema">${esc(pl.tema)}</h2>
+      ${barraPlano(i.pct)}
+      <div class="meta-linha">${Math.round(i.pct)}% do tempo &middot; ${fmtFull(pl.ini)} a ${fmtFull(pl.fim)}</div></button>`;
+  }
+  h+=`<button class="btn primario" data-act="novoPlano">Adicionar plano</button>`;
+  return h;
+}
+function planoDetalhe(pl){
+  const i=planoInfo(pl);
+  return `<div class="topo"><button class="link" data-act="voltarPlano">&larr; Planos futuros</button><button class="link forte" data-act="editPlano">Editar</button></div>
+  <h1 class="plano-tema">${esc(pl.tema)}</h1>
+  <p class="sub">${fmtFull(pl.ini)} a ${fmtFull(pl.fim)}</p>
+  ${barraPlano(i.pct)}
+  <div class="pper"><span>${fmtFull(pl.ini)}</span><b>${Math.round(i.pct)}%</b><span>${fmtFull(pl.fim)}</span></div>
+  <div class="ptempo"><div><span>Tempo que passou</span><b>${esc(i.passou)}</b></div><div><span>Tempo que falta</span><b>${esc(i.faltam)}</b></div></div>
+  <h2 class="sec">Sobre este plano</h2>
+  <textarea data-plano-texto rows="9" maxlength="5000" placeholder="Escreva sobre este plano: por que é importante, como vai conseguir, valores, passos...">${esc(pl.texto||'')}</textarea>
+  <button class="btn repor" data-act="delPlano">Excluir este plano</button>
+  <button class="btn" data-act="voltarPlano">&larr; Voltar</button>`;
+}
+
 /* ---------- O meu governo vem de Deus ---------- */
 function gov(){if(!db.governo)db.governo={versiculos:[],areas:[]};return db.governo}
 function acharArea(id){return ((db.governo&&db.governo.areas)||[]).find(a=>a.id===id)}
@@ -692,9 +782,9 @@ function areaDetalhe(a){
 function irDetalhe(){ if(typeof history!=='undefined'&&!(history.state&&history.state.tela==='det')) history.pushState({tela:'det'},''); }
 function irHome(){
   if(typeof history!=='undefined'&&history.state&&history.state.tela==='det') history.back();
-  else {view=null; areaView=null; sel=null; render();}
+  else {view=null; areaView=null; planoView=null; sel=null; render();}
 }
-window.addEventListener('popstate',()=>{view=null; areaView=null; sel=null; render();});
+window.addEventListener('popstate',()=>{view=null; areaView=null; planoView=null; sel=null; render();});
 if(typeof history!=='undefined'&&history.replaceState) history.replaceState({tela:'home'},'');
 
 /* ---------- ações ---------- */
@@ -715,7 +805,15 @@ document.getElementById('app').addEventListener('click',e=>{
     const ta=document.getElementById('nota-'+i); if(ta){ta.scrollIntoView({block:'center'});ta.focus();}
   }
   else if(act==='tab'){tab=b.dataset.tab; render();}
-  else if(act==='sec'){secao=b.dataset.sec; areaView=null; render();}
+  else if(act==='sec'){secao=b.dataset.sec; areaView=null; planoView=null; render();}
+  else if(act==='novoPlano') abrirPlanoDlg(null);
+  else if(act==='abrirPlano'){const pl=acharPlano(b.dataset.id); if(pl){planoView=pl.id;irDetalhe();render();}}
+  else if(act==='voltarPlano') irHome();
+  else if(act==='editPlano'){const pl=acharPlano(planoView); if(pl) abrirPlanoDlg(pl);}
+  else if(act==='delPlano'){
+    const pl=acharPlano(planoView); if(!pl) return;
+    confirmar('Excluir plano?','Tem certeza que deseja excluir "'+pl.tema.toUpperCase()+'" e tudo o que você escreveu nele? Isso não pode ser desfeito.',()=>{db.planos=db.planos.filter(x=>x.id!==pl.id);save();irHome();});
+  }
   else if(act==='novoVers') abrirVers(null);
   else if(act==='editVers') abrirVers(gov().versiculos.find(v=>v.id===b.dataset.id));
   else if(act==='delVers'){
@@ -778,6 +876,7 @@ document.getElementById('app').addEventListener('change',e=>{
 });
 document.getElementById('app').addEventListener('input',e=>{
   if(e.target.id==='a-obs'){aObs=e.target.value; return;}
+  if(e.target.matches('[data-plano-texto]')){const pl=planoView&&acharPlano(planoView); if(pl){pl.texto=e.target.value; salvarDepois();} return;}
   if(e.target.matches('[data-instr]')){const mm=view&&acharMeta(view); if(mm){mm.instrucoes=e.target.value; salvarDepois();} return;}
   const t=e.target.closest('[data-nota]'); const m=view&&acharMeta(view); if(!t||!m) return;
   m.notas=m.notas||{};
@@ -810,6 +909,28 @@ document.getElementById('c-sim').onclick=()=>{const f=acaoConf;acaoConf=null;cdl
 document.getElementById('f-excluir').onclick=()=>{
   const m=editId&&acharMeta(editId); if(!m) return;
   dlg.close(); pedirExclusao(m);
+};
+
+/* ---------- planos: criar / editar ---------- */
+const pdlg=document.getElementById('dlg-plano');
+function abrirPlanoDlg(pl){
+  editPlanoId=pl?pl.id:null;
+  document.getElementById('p-titulo').textContent=pl?'Editar plano':'Novo plano';
+  document.getElementById('p-tema').value=pl?pl.tema:'';
+  document.getElementById('p-ini').value=pl?pl.ini:hoje();
+  document.getElementById('p-fim').value=pl?pl.fim:addMeses(hoje(),12);
+  pdlg.showModal(); document.getElementById('p-tema').focus();
+}
+document.getElementById('p-cancelar').onclick=()=>pdlg.close();
+document.getElementById('p-salvar').onclick=()=>{
+  const tema=document.getElementById('p-tema').value.trim(), ini=document.getElementById('p-ini').value, fim=document.getElementById('p-fim').value;
+  if(!tema){document.getElementById('p-tema').focus();return;}
+  if(!ini||!fim){alert('Informe a data de início e a data final.');return;}
+  if(fim<=ini){alert('A data final precisa ser depois da data de início.');return;}
+  db.planos=db.planos||[];
+  if(editPlanoId){const pl=acharPlano(editPlanoId); if(pl){pl.tema=tema;pl.ini=ini;pl.fim=fim;}}
+  else {const pl={id:'p'+Date.now(),tema,ini,fim,texto:''}; db.planos.unshift(pl); planoView=pl.id; irDetalhe();}
+  save(); pdlg.close(); render();
 };
 
 /* ---------- versículos e áreas ---------- */
